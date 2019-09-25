@@ -69,12 +69,7 @@ class tf_idf:
 		cosine_vector = np.zeros((size,size))
 		for i in range(size):
 			for j in range(size):
-				if i == j:
-					cosine_value = 1
-				elif i > j:
-					cosine_value = cosine_vector.item((j,i))
-				else:
-					cosine_value = self.cosine_pair((0,1))
+				cosine_value = self.cosine_pair((i,j))
 				cosine_vector.itemset((i,j),cosine_value)
 		return cosine_vector
 			
@@ -82,13 +77,19 @@ class tf_idf:
 	def cosine_pair(self,pair):
 		s1,s2 = pair
 		num = 0
-		denum1 = 1
-		denum2 = 1
+		denum1 = 0
+		denum2 = 0
 		for i in range(len(self.unique_words)):
 			num += self.tfidf_vector.item((s1,i)) * self.tfidf_vector.item((s2,i))
-			denum1 += self.tfidf_vector.item((s1,i)) ** 2
-			denum2 += self.tfidf_vector.item((s2,i)) ** 2
-		similarity  = num / (np.sqrt(denum1)*np.sqrt(denum2))
+			denum1 += self.tfidf_vector.item((s1,i)) * self.tfidf_vector.item((s1,i))
+			denum2 += self.tfidf_vector.item((s2,i)) * self.tfidf_vector.item((s2,i))
+		denum1 = np.sqrt(denum1)
+		denum2 = np.sqrt(denum2)
+		if (denum1*denum2) == 0:
+			similarity = 0
+		else:
+			similarity = num / (denum1*denum2)
+		print(f"{pair} {similarity:.5f} = {num:.5f} / ({denum1:.5f}*{denum2:.5f})")
 		return similarity
 
 	def calculate_tfidf(self):
